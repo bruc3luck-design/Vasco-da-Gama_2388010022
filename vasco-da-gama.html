@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vasco da Gama — The Phantom Navigator</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;700;900&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-dim: #8a6f2e;
+    --navy-deep: #030d1a;
+    --navy: #071428;
+    --navy-mid: #0c1f3a;
+    --fog: #a8b4c2;
+    --fog-dim: #5a6a7a;
+    --text-primary: #e8dcc8;
+    --text-dim: #8a8070;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--navy-deep);
+    color: var(--text-primary);
+    font-family: 'EB Garamond', serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.3s, height 0.3s, opacity 0.3s;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 32px; height: 32px;
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s ease-out, width 0.3s, height 0.3s;
+  }
+  body:hover .cursor { opacity: 1; }
+
+  /* GRAIN OVERLAY */
+  .grain::after {
+    content: '';
+    position: fixed;
+    inset: -200%;
+    width: 400%; height: 400%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.028;
+    pointer-events: none;
+    z-index: 9997;
+    animation: grain-shift 0.5s steps(2) infinite;
+  }
+  @keyframes grain-shift {
+    0%   { transform: translate(0, 0); }
+    25%  { transform: translate(-1%, -2%); }
+    50%  { transform: translate(2%, 1%); }
+    75%  { transform: translate(-1%, 2%); }
+    100% { transform: translate(1%, -1%); }
+  }
+
+  /* TYPOGRAPHY */
+  .font-cinzel { font-family: 'Cinzel', serif; }
+  .font-cormorant { font-family: 'Cormorant Garamond', serif; }
+
+  /* HERO */
+  #hero {
+    position: relative;
+    height: 100vh;
+    min-height: 700px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    will-change: transform;
+  }
+
+  /* Animated SVG Ocean */
+  .ocean-bg {
+    background: radial-gradient(ellipse at 50% 100%, #0a1e3a 0%, #030d1a 60%);
+  }
+
+  .wave-group {
+    position: absolute;
+    bottom: 0;
+    left: -10%;
+    width: 120%;
+  }
+
+  .wave {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+  }
+
+  .fog-layer {
+    background: radial-gradient(ellipse at 50% 60%, rgba(168,180,194,0.06) 0%, transparent 70%);
+    animation: fog-drift 12s ease-in-out infinite alternate;
+  }
+  .fog-layer-2 {
+    background: radial-gradient(ellipse at 30% 40%, rgba(168,180,194,0.04) 0%, transparent 60%);
+    animation: fog-drift 18s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes fog-drift {
+    0%   { transform: translateX(-3%) translateY(0); }
+    100% { transform: translateX(3%) translateY(-2%); }
+  }
+
+  .hero-vignette {
+    background: radial-gradient(ellipse at center, transparent 30%, rgba(3,13,26,0.85) 100%);
+    pointer-events: none;
+  }
+  .hero-bottom-fade {
+    background: linear-gradient(to top, var(--navy-deep) 0%, transparent 40%);
+    pointer-events: none;
+  }
+
+  /* SHIP */
+  .ship-silhouette {
+    position: absolute;
+    bottom: 22%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0.7;
+    filter: drop-shadow(0 0 40px rgba(201,168,76,0.12));
+    animation: ship-sway 8s ease-in-out infinite;
+  }
+  @keyframes ship-sway {
+    0%,100% { transform: translateX(-50%) translateY(0px) rotate(-0.3deg); }
+    50%      { transform: translateX(-50%) translateY(-6px) rotate(0.3deg); }
+  }
+
+  /* STARS */
+  .stars-canvas {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  /* HERO CONTENT */
+  .hero-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 0 2rem;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.5em;
+    color: var(--gold);
+    opacity: 0.8;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+  }
+
+  .hero-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(3.5rem, 9vw, 9rem);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    text-shadow: 0 0 80px rgba(201,168,76,0.2), 0 0 200px rgba(201,168,76,0.05);
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1rem, 2.5vw, 1.6rem);
+    font-style: italic;
+    font-weight: 300;
+    color: var(--fog);
+    letter-spacing: 0.3em;
+    margin-bottom: 2.5rem;
+    opacity: 0.8;
+  }
+
+  .hero-rule {
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0 auto 2rem;
+  }
+
+  .hero-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(0.9rem, 1.8vw, 1.15rem);
+    font-style: italic;
+    color: var(--fog-dim);
+    max-width: 540px;
+    margin: 0 auto 3rem;
+    line-height: 1.8;
+  }
+
+  .cta-btn {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid rgba(201,168,76,0.35);
+    padding: 1rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: color 0.4s, border-color 0.4s;
+    cursor: none;
+    text-decoration: none;
+  }
+  .cta-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s cubic-bezier(0.7,0,0.3,1);
+    z-index: -1;
+  }
+  .cta-btn:hover { color: var(--navy-deep); border-color: var(--gold); }
+  .cta-btn:hover::before { transform: scaleX(1); }
+
+  /* SCROLL INDICATOR */
+  .scroll-indicator {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 10;
+    opacity: 0.5;
+  }
+  .scroll-indicator span {
+    font-family: 'Cinzel', serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.35em;
+    color: var(--fog-dim);
+  }
+  .scroll-line {
+    width: 1px;
+    height: 50px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+    animation: scroll-drop 2s ease-in-out infinite;
+  }
+  @keyframes scroll-drop {
+    0%   { transform: scaleY(0); transform-origin: top; opacity: 0; }
+    30%  { transform: scaleY(1); transform-origin: top; opacity: 1; }
+    70%  { transform: scaleY(1); transform-origin: bottom; opacity: 1; }
+    100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
+  }
+
+  /* SECTIONS */
+  section { position: relative; }
+
+  .section-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.5em;
+    color: var(--gold);
+    opacity: 0.6;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  /* BACKSTORY */
+  #backstory {
+    padding: 8rem 0;
+    background: linear-gradient(to bottom, var(--navy-deep), var(--navy), var(--navy-deep));
+  }
+
+  .timeline-item {
+    display: grid;
+    grid-template-columns: 1fr 80px 1fr;
+    align-items: start;
+    margin-bottom: 5rem;
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  .timeline-item.left { direction: ltr; }
+  .timeline-item.right { direction: rtl; }
+  .timeline-item .content { direction: ltr; }
+
+  .timeline-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 0.5rem;
+  }
+  .timeline-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 20px rgba(201,168,76,0.5);
+    position: relative;
+    flex-shrink: 0;
+  }
+  .timeline-line {
+    width: 1px;
+    flex: 1;
+    min-height: 80px;
+    background: linear-gradient(to bottom, rgba(201,168,76,0.4), transparent);
+  }
+
+  .timeline-year {
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    color: var(--gold-dim);
+    margin-bottom: 0.5rem;
+  }
+  .timeline-event {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    line-height: 1.2;
+  }
+  .timeline-desc {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.05rem;
+    color: var(--fog-dim);
+    line-height: 1.8;
+    max-width: 380px;
+  }
+
+  /* TRAITS */
+  #traits {
+    padding: 8rem 0;
+    background: var(--navy-deep);
+  }
+
+  .trait-card {
+    border: 1px solid rgba(201,168,76,0.1);
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.2,0,0,1), border-color 0.4s;
+    cursor: none;
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  .trait-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at top left, rgba(201,168,76,0.07) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .trait-card:hover { transform: translateY(-6px); border-color: rgba(201,168,76,0.35); }
+  .trait-card:hover::before { opacity: 1; }
+
+  .trait-number {
+    font-family: 'Cinzel', serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    opacity: 0.5;
+    margin-bottom: 1.5rem;
+  }
+  .trait-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    letter-spacing: 0.05em;
+  }
+  .trait-desc {
+    font-family: 'EB Garamond', serif;
+    font-size: 1rem;
+    color: var(--fog-dim);
+    line-height: 1.75;
+  }
+  .trait-glyph {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    font-size: 2.5rem;
+    opacity: 0.06;
+    filter: blur(1px);
+    font-family: serif;
+  }
+
+  /* SKILLS */
+  #skills {
+    padding: 8rem 0;
+    background: linear-gradient(to bottom, var(--navy-deep), var(--navy-mid));
+  }
+
+  .skill-item {
+    margin-bottom: 2.5rem;
+    opacity: 0;
+  }
+  .skill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.75rem;
+  }
+  .skill-name {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    color: var(--text-primary);
+    text-transform: uppercase;
+  }
+  .skill-pct {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    color: var(--gold);
+    font-style: italic;
+  }
+  .skill-track {
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    position: relative;
+    overflow: visible;
+  }
+  .skill-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+    width: 0;
+    position: relative;
+    transition: none;
+  }
+  .skill-fill::after {
+    content: '';
+    position: absolute;
+    right: -1px; top: 50%;
+    transform: translateY(-50%);
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 10px var(--gold);
+  }
+
+  /* SHIP SHOWCASE */
+  #ship {
+    padding: 8rem 0;
+    overflow: hidden;
+    background: var(--navy-deep);
+  }
+
+  .ship-visual {
+    position: relative;
+    height: 420px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .ship-glow {
+    position: absolute;
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(201,168,76,0.06) 0%, transparent 70%);
+    bottom: 30%;
+  }
+  .ship-water-reflection {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    height: 120px;
+    background: linear-gradient(to bottom, transparent, rgba(10,30,60,0.8));
+  }
+
+  .spec-item {
+    border-left: 1px solid rgba(201,168,76,0.2);
+    padding: 0.75rem 0 0.75rem 1.5rem;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+  }
+  .spec-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    opacity: 0.7;
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+  }
+  .spec-value {
+    font-family: 'EB Garamond', serif;
+    font-size: 1rem;
+    color: var(--text-primary);
+  }
+
+  /* CONFLICT */
+  #conflict {
+    padding: 10rem 0;
+    background: linear-gradient(to bottom, var(--navy-mid), #020810);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .fog-particle {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(168,180,194,0.03) 0%, transparent 70%);
+    pointer-events: none;
+    animation: fog-float linear infinite;
+  }
+  @keyframes fog-float {
+    0%   { transform: translate(0, 0) scale(1); opacity: 0; }
+    15%  { opacity: 1; }
+    85%  { opacity: 0.5; }
+    100% { transform: translate(var(--fx), var(--fy)) scale(1.5); opacity: 0; }
+  }
+
+  .conflict-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+    font-style: italic;
+    font-weight: 300;
+    line-height: 2;
+    color: var(--fog-dim);
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .conflict-highlight {
+    color: var(--text-primary);
+    font-weight: 400;
+  }
+
+  /* REPUTATION */
+  #reputation {
+    padding: 8rem 0;
+    background: var(--navy-deep);
+  }
+
+  .rep-col {
+    padding: 4rem 3rem;
+    position: relative;
+    opacity: 0;
+  }
+  .rep-col-legend {
+    border-right: 1px solid rgba(201,168,76,0.15);
+  }
+  .rep-col-madman {
+    border-left: 1px solid rgba(201,168,76,0.05);
+  }
+
+  .rep-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+  }
+  .rep-label-legend { color: var(--gold); }
+  .rep-label-madman { color: var(--fog-dim); }
+
+  .rep-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 2rem;
+  }
+  .rep-title-legend { color: var(--text-primary); }
+  .rep-title-madman { color: rgba(168,180,194,0.3); }
+
+  .rep-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    line-height: 1.8;
+  }
+  .rep-quote-legend { color: var(--fog-dim); }
+  .rep-quote-madman { color: rgba(90,106,122,0.6); }
+
+  /* FINALE */
+  #finale {
+    height: 100vh;
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background: var(--navy-deep);
+  }
+
+  .finale-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 100%, rgba(7,20,40,1) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 50%, rgba(201,168,76,0.03) 0%, transparent 60%);
+  }
+  .finale-horizon {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 30%;
+    background: linear-gradient(to top, rgba(7,20,40,0.9), transparent);
+  }
+
+  .finale-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 0 2rem;
+  }
+  .finale-rule {
+    width: 1px;
+    height: 80px;
+    background: linear-gradient(to bottom, transparent, var(--gold-dim), transparent);
+    margin: 0 auto 3rem;
+  }
+  .finale-quote {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.5rem, 4vw, 3rem);
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    color: var(--text-primary);
+    max-width: 700px;
+    margin: 0 auto 3rem;
+    line-height: 1.4;
+  }
+  .finale-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--fog-dim);
+    margin-bottom: 3rem;
+    letter-spacing: 0.1em;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 1.5rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(3,13,26,0.7), transparent);
+    backdrop-filter: blur(0px);
+    transition: backdrop-filter 0.4s, background 0.4s;
+  }
+  nav.scrolled {
+    backdrop-filter: blur(12px);
+    background: rgba(3,13,26,0.85);
+  }
+  .nav-logo {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    opacity: 0.8;
+    text-transform: uppercase;
+  }
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+  }
+  .nav-links a {
+    font-family: 'Cinzel', serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.35em;
+    color: var(--fog-dim);
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.3s;
+    cursor: none;
+  }
+  .nav-links a:hover { color: var(--gold); }
+
+  /* DIVIDERS */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,168,76,0.15), transparent);
+    margin: 0;
+  }
+
+  /* UTILITY */
+  .container-custom {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 3rem;
+  }
+
+  .section-heading {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 900;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-bottom: 1rem;
+  }
+
+  .floating-compass {
+    position: absolute;
+    right: 5%;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.04;
+    font-size: 20rem;
+    line-height: 1;
+    pointer-events: none;
+    animation: compass-rotate 60s linear infinite;
+    font-family: serif;
+    color: var(--gold);
+  }
+  @keyframes compass-rotate {
+    from { transform: translateY(-50%) rotate(0deg); }
+    to   { transform: translateY(-50%) rotate(360deg); }
+  }
+
+  @media (max-width: 768px) {
+    .timeline-item { grid-template-columns: 40px 1fr; }
+    .timeline-item .right-col { display: none; }
+    .timeline-item.right { direction: ltr; }
+    .nav-links { display: none; }
+    .container-custom { padding: 0 1.5rem; }
+    .rep-col-legend { border-right: none; border-bottom: 1px solid rgba(201,168,76,0.15); }
+    .rep-col-madman { border-left: none; }
+    .floating-compass { display: none; }
+  }
+</style>
+</head>
+<body class="grain">
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-logo">Catur Prasetiyo Gama 2388010022</div>
+  <div class="nav-links">
+    <a href="#backstory">Origins</a>
+    <a href="#traits">Character</a>
+    <a href="#ship">The Ship</a>
+    <a href="#finale">Voyage</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════ -->
+<section id="hero">
+  <!-- STARS -->
+  <canvas class="stars-canvas hero-layer" id="stars-canvas"></canvas>
+
+  <!-- OCEAN BG -->
+  <div class="hero-layer ocean-bg"></div>
+
+  <!-- ANIMATED WAVES (SVG) -->
+  <div class="hero-layer" style="pointer-events:none; z-index:2;">
+    <svg viewBox="0 0 1440 320" preserveAspectRatio="none" style="position:absolute;bottom:0;width:100%;height:220px;" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="wg1" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0a1e3a" stop-opacity="0.5"/>
+          <stop offset="100%" stop-color="#030d1a" stop-opacity="1"/>
+        </linearGradient>
+      </defs>
+      <!-- Wave 3 - back -->
+      <path id="wave3" fill="rgba(7,20,40,0.3)" d="M0,180 C240,100 480,240 720,180 C960,120 1200,240 1440,180 L1440,320 L0,320 Z"/>
+      <!-- Wave 2 - mid -->
+      <path id="wave2" fill="rgba(8,24,50,0.5)" d="M0,220 C200,160 440,280 720,220 C1000,160 1240,270 1440,220 L1440,320 L0,320 Z"/>
+      <!-- Wave 1 - front -->
+      <path id="wave1" fill="url(#wg1)" d="M0,250 C180,200 400,290 720,250 C1040,210 1260,270 1440,250 L1440,320 L0,320 Z"/>
+    </svg>
+  </div>
+
+  <!-- SHIP SILHOUETTE SVG -->
+  <div class="hero-layer" style="z-index:3; pointer-events:none;">
+    <svg class="ship-silhouette" width="420" height="200" viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg" fill="none">
+      <!-- Hull -->
+      <path d="M60 150 Q210 165 360 150 L340 185 Q210 195 80 185 Z" fill="#040f1e"/>
+      <!-- Main hull shape -->
+      <path d="M80 185 Q210 196 340 185 L345 178 Q210 190 75 178 Z" fill="#050f1c"/>
+      <!-- Keel -->
+      <path d="M100 185 L200 200 L320 185" stroke="rgba(201,168,76,0.15)" stroke-width="1" fill="none"/>
+      <!-- Deck -->
+      <path d="M70 150 L350 150 L345 155 L75 155 Z" fill="#061220"/>
+      <!-- Mast main -->
+      <line x1="210" y1="20" x2="210" y2="152" stroke="#0d1e35" stroke-width="3"/>
+      <!-- Mast fore -->
+      <line x1="130" y1="50" x2="130" y2="152" stroke="#0d1e35" stroke-width="2"/>
+      <!-- Mast aft -->
+      <line x1="300" y1="70" x2="300" y2="152" stroke="#0d1e35" stroke-width="2"/>
+      <!-- Main sail furled -->
+      <path d="M140 28 Q210 20 278 28 L265 90 Q210 100 155 90 Z" fill="#07111f" stroke="rgba(201,168,76,0.06)" stroke-width="0.5"/>
+      <!-- Fore sail -->
+      <path d="M90 55 Q130 50 168 55 L160 105 Q130 112 100 105 Z" fill="#060f1b" stroke="rgba(201,168,76,0.04)" stroke-width="0.5"/>
+      <!-- Aft sail -->
+      <path d="M250 72 Q300 68 340 72 L332 118 Q300 124 258 118 Z" fill="#060f1b" stroke="rgba(201,168,76,0.04)" stroke-width="0.5"/>
+      <!-- Rigging -->
+      <line x1="210" y1="22" x2="90" y2="150" stroke="rgba(201,168,76,0.07)" stroke-width="0.7"/>
+      <line x1="210" y1="22" x2="340" y2="150" stroke="rgba(201,168,76,0.07)" stroke-width="0.7"/>
+      <line x1="130" y1="52" x2="210" y2="25" stroke="rgba(201,168,76,0.07)" stroke-width="0.5"/>
+      <line x1="300" y1="72" x2="210" y2="28" stroke="rgba(201,168,76,0.07)" stroke-width="0.5"/>
+      <!-- Lantern glow -->
+      <circle cx="210" cy="19" r="3" fill="rgba(201,168,76,0.8)"/>
+      <circle cx="210" cy="19" r="8" fill="rgba(201,168,76,0.08)"/>
+      <!-- Water reflection line -->
+      <line x1="60" y1="170" x2="360" y2="170" stroke="rgba(201,168,76,0.06)" stroke-width="0.5"/>
+    </svg>
+  </div>
+
+  <!-- FOG LAYERS -->
+  <div class="hero-layer fog-layer" style="z-index:4; pointer-events:none;"></div>
+  <div class="hero-layer fog-layer-2" style="z-index:4; pointer-events:none;"></div>
+
+  <!-- VIGNETTE -->
+  <div class="hero-layer hero-vignette" style="z-index:5;"></div>
+  <div class="hero-layer hero-bottom-fade" style="z-index:6;"></div>
+
+  <!-- HERO CONTENT -->
+  <div class="hero-content" id="hero-content" style="opacity:0;">
+    <p class="hero-eyebrow" id="h-eyebrow">1488 — The Known World Ends Here</p>
+    <h1 class="hero-title" id="h-title">
+      <span id="ht-vasco">Vasco</span><br>
+      <span id="ht-gama">da Gama</span>
+    </h1>
+    <p class="hero-subtitle" id="h-sub">The Phantom Navigator</p>
+    <div class="hero-rule" id="h-rule"></div>
+    <p class="hero-quote" id="h-quote">
+      "Peta dibuat oleh mereka yang selamat.<br>Aku lebih tertarik pada kisah mereka yang hilang."
+    </p>
+    <a href="#backstory" class="cta-btn" id="h-cta">Begin the Voyage</a>
+  </div>
+
+  <!-- SCROLL INDICATOR -->
+  <div class="scroll-indicator" id="scroll-ind">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     BACKSTORY
+═══════════════════════════════════════════ -->
+<div class="divider"></div>
+<section id="backstory">
+  <div class="container-custom">
+    <div style="text-align:center; margin-bottom:5rem;" id="backstory-head">
+      <p class="section-label">The Chronicle</p>
+      <h2 class="section-heading">Origins of Obsession</h2>
+      <p style="font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--fog-dim); font-size:1.1rem; margin-top:1rem;">
+        Every phantom has a wound that made it so.
+      </p>
+    </div>
+
+    <!-- Timeline -->
+    <div id="timeline">
+
+      <div class="timeline-item left" data-dir="left">
+        <div class="content" style="padding-right:2rem; text-align:right;">
+          <p class="timeline-year">1471 A.D.</p>
+          <p class="timeline-event">Born in Arkenza</p>
+          <p class="timeline-desc">A fog-covered port city where sailors' superstitions were the only religion. He was born between tides — his mother claimed the sea spoke during labor. No one believed her. Vasco did.</p>
+        </div>
+        <div class="timeline-center">
+          <div class="timeline-dot"></div>
+          <div class="timeline-line"></div>
+        </div>
+        <div></div>
+      </div>
+
+      <div class="timeline-item right" data-dir="right">
+        <div></div>
+        <div class="timeline-center">
+          <div class="timeline-dot"></div>
+          <div class="timeline-line"></div>
+        </div>
+        <div class="content" style="padding-left:2rem;">
+          <p class="timeline-year">1488 A.D.</p>
+          <p class="timeline-event">Shipwreck at Age 17</p>
+          <p class="timeline-desc">The merchant vessel Esperança fractured on an unmarked reef. Of 24 crew, three survived. Vasco floated on debris for nine days. He emerged not grateful — but deeply, permanently curious about what lay beyond the reef's edge.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item left" data-dir="left">
+        <div class="content" style="padding-right:2rem; text-align:right;">
+          <p class="timeline-year">1491 A.D.</p>
+          <p class="timeline-event">Death of the Father</p>
+          <p class="timeline-desc">Admiral Henrique da Gama vanished on a classified expedition. His personal charts arrived home in a sealed chest — the contents were never made public. Vasco broke the seal at midnight. What he saw changed everything.</p>
+        </div>
+        <div class="timeline-center">
+          <div class="timeline-dot"></div>
+          <div class="timeline-line"></div>
+        </div>
+        <div></div>
+      </div>
+
+      <div class="timeline-item right" data-dir="right">
+        <div></div>
+        <div class="timeline-center">
+          <div class="timeline-dot"></div>
+        </div>
+        <div class="content" style="padding-left:2rem;">
+          <p class="timeline-year">1494 A.D.</p>
+          <p class="timeline-event">The Obsession Begins</p>
+          <p class="timeline-desc">He resigned his naval commission, sold his land, and purchased a decommissioned warship. He renamed it <em>Aeternum Mare</em>. Friends called it madness. He called it inheritance.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     TRAITS
+═══════════════════════════════════════════ -->
+<div class="divider"></div>
+<section id="traits">
+  <div class="container-custom">
+    <div style="text-align:center; margin-bottom:5rem;" id="traits-head">
+      <p class="section-label">Psychological Profile</p>
+      <h2 class="section-heading">The Nature of the Man</h2>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1.5rem;">
+
+      <div class="trait-card" data-index="0">
+        <p class="trait-number">01</p>
+        <p class="trait-title">Analytical & Strategic</p>
+        <p class="trait-desc">Every conversation is a map. Every silence is a territory. He processes risk not through fear, but through architecture — building invisible frameworks before every decision.</p>
+        <span class="trait-glyph">⬡</span>
+      </div>
+
+      <div class="trait-card" data-index="1">
+        <p class="trait-number">02</p>
+        <p class="trait-title">Cold Under Pressure</p>
+        <p class="trait-desc">When the storm reaches its peak, Vasco grows quieter — not calmer. His stillness is tactical. Crew members report that his composure in crisis is more unsettling than the crisis itself.</p>
+        <span class="trait-glyph">◈</span>
+      </div>
+
+      <div class="trait-card" data-index="2">
+        <p class="trait-number">03</p>
+        <p class="trait-title">Morally Ambiguous</p>
+        <p class="trait-desc">He does not believe in good or evil as fixed coordinates. To him, morality is weather — useful information for navigation, but never a reason to anchor. The destination justifies the bearing.</p>
+        <span class="trait-glyph">⊗</span>
+      </div>
+
+      <div class="trait-card" data-index="3">
+        <p class="trait-number">04</p>
+        <p class="trait-title">Obsessive Explorer</p>
+        <p class="trait-desc">He has mapped coastlines that don't appear on any official chart. He has named seventeen unnamed islands — none with human names. He says naming things after people is how they die twice.</p>
+        <span class="trait-glyph">◎</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     SKILLS
+═══════════════════════════════════════════ -->
+<div class="divider"></div>
+<section id="skills">
+  <div class="container-custom">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6rem; align-items:center;" class="skills-grid-responsive">
+      <div id="skills-head">
+        <p class="section-label">Capability Index</p>
+        <h2 class="section-heading" style="margin-bottom:1.5rem;">The Navigator's<br>Arsenal</h2>
+        <p style="font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--fog-dim); font-size:1.1rem; line-height:1.8;">
+          Mastery is not measured in certificates or rank. It is measured in the distance between where you intended to go — and where you actually arrived.
+        </p>
+      </div>
+      <div id="skills-bars">
+        <div class="skill-item" data-pct="96">
+          <div class="skill-header">
+            <span class="skill-name">Navigation</span>
+            <span class="skill-pct">96</span>
+          </div>
+          <div class="skill-track"><div class="skill-fill" data-target="96"></div></div>
+        </div>
+        <div class="skill-item" data-pct="88">
+          <div class="skill-header">
+            <span class="skill-name">Weather Reading</span>
+            <span class="skill-pct">88</span>
+          </div>
+          <div class="skill-track"><div class="skill-fill" data-target="88"></div></div>
+        </div>
+        <div class="skill-item" data-pct="79">
+          <div class="skill-header">
+            <span class="skill-name">Survival</span>
+            <span class="skill-pct">79</span>
+          </div>
+          <div class="skill-track"><div class="skill-fill" data-target="79"></div></div>
+        </div>
+        <div class="skill-item" data-pct="52">
+          <div class="skill-header">
+            <span class="skill-name">Diplomacy</span>
+            <span class="skill-pct">52</span>
+          </div>
+          <div class="skill-track"><div class="skill-fill" data-target="52"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     SHIP SHOWCASE
+═══════════════════════════════════════════ -->
+<div class="divider"></div>
+<section id="ship">
+  <div class="container-custom">
+    <div style="text-align:center; margin-bottom:4rem;" id="ship-head">
+      <p class="section-label">The Vessel</p>
+      <h2 class="section-heading">Aeternum Mare</h2>
+      <p style="font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--fog-dim); font-size:1.05rem; margin-top:1rem; letter-spacing:0.15em;">
+        Eternal Sea — A ship built for routes that shouldn't exist.
+      </p>
+    </div>
+  </div>
+
+  <!-- SHIP VISUAL -->
+  <div class="ship-visual" id="ship-visual">
+    <div class="ship-glow"></div>
+    <!-- Large cinematic ship SVG -->
+    <svg id="ship-main-svg" width="800" height="380" viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg" fill="none" style="position:relative;z-index:2; opacity:0; filter:drop-shadow(0 0 60px rgba(201,168,76,0.08));">
+      <defs>
+        <linearGradient id="hullGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0d1e35"/>
+          <stop offset="100%" stop-color="#040c18"/>
+        </linearGradient>
+        <linearGradient id="sailGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0c1a30"/>
+          <stop offset="100%" stop-color="#061020"/>
+        </linearGradient>
+        <radialGradient id="lanternGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#c9a84c" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="#c9a84c" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <!-- Ocean surface -->
+      <path d="M0 270 Q200 255 400 265 Q600 275 800 265 L800 380 L0 380Z" fill="#040c18" opacity="0.8"/>
+      <path d="M0 280 Q200 268 400 275 Q600 282 800 272" stroke="rgba(201,168,76,0.08)" stroke-width="1" fill="none"/>
+
+      <!-- HULL -->
+      <path d="M100 260 Q400 280 700 260 L680 310 Q400 330 120 310 Z" fill="url(#hullGrad)"/>
+      <path d="M120 310 Q400 330 680 310 L670 320 Q400 336 130 320Z" fill="#03090f"/>
+      <!-- Hull planks subtle -->
+      <line x1="200" y1="262" x2="190" y2="308" stroke="rgba(201,168,76,0.04)" stroke-width="0.5"/>
+      <line x1="300" y1="268" x2="295" y2="315" stroke="rgba(201,168,76,0.04)" stroke-width="0.5"/>
+      <line x1="400" y1="270" x2="400" y2="318" stroke="rgba(201,168,76,0.04)" stroke-width="0.5"/>
+      <line x1="500" y1="268" x2="505" y2="315" stroke="rgba(201,168,76,0.04)" stroke-width="0.5"/>
+      <line x1="600" y1="263" x2="608" y2="310" stroke="rgba(201,168,76,0.04)" stroke-width="0.5"/>
+      <!-- Gold trim hull -->
+      <path d="M100 260 Q400 280 700 260" stroke="rgba(201,168,76,0.18)" stroke-width="1" fill="none"/>
+      <!-- Gunports -->
+      <rect x="165" y="272" width="18" height="12" rx="1" fill="#020810" stroke="rgba(201,168,76,0.1)" stroke-width="0.5"/>
+      <rect x="245" y="277" width="18" height="12" rx="1" fill="#020810" stroke="rgba(201,168,76,0.1)" stroke-width="0.5"/>
+      <rect x="325" y="279" width="18" height="12" rx="1" fill="#020810" stroke="rgba(201,168,76,0.1)" stroke-width="0.5"/>
+      <rect x="460" y="279" width="18" height="12" rx="1" fill="#020810" stroke="rgba(201,168,76,0.1)" stroke-width="0.5"/>
+      <rect x="540" y="276" width="18" height="12" rx="1" fill="#020810" stroke="rgba(201,168,76,0.1)" stroke-width="0.5"/>
+      <rect x="617" y="272" width="18" height="12" rx="1" fill="#020810" stroke="rgba(201,168,76,0.1)" stroke-width="0.5"/>
+      <!-- Deck -->
+      <path d="M105 260 L695 260 L690 265 L110 265Z" fill="#0d1e35"/>
+      <!-- Deck railing -->
+      <path d="M110 260 L690 260" stroke="rgba(201,168,76,0.25)" stroke-width="0.8" fill="none"/>
+
+      <!-- MAIN MAST -->
+      <line x1="400" y1="20" x2="400" y2="262" stroke="#0e2040" stroke-width="5"/>
+      <line x1="400" y1="20" x2="400" y2="262" stroke="rgba(201,168,76,0.06)" stroke-width="1"/>
+      <!-- FORE MAST -->
+      <line x1="230" y1="65" x2="230" y2="262" stroke="#0d1e38" stroke-width="3.5"/>
+      <!-- AFT MAST -->
+      <line x1="570" y1="90" x2="570" y2="262" stroke="#0d1e38" stroke-width="3.5"/>
+
+      <!-- MAIN SAIL (furled matte black) -->
+      <path d="M258 35 Q400 22 542 35 L525 165 Q400 180 275 165Z" fill="url(#sailGrad)" stroke="rgba(201,168,76,0.05)" stroke-width="0.5"/>
+      <!-- Sail horizontal spars -->
+      <line x1="265" y1="38" x2="535" y2="38" stroke="#0e2040" stroke-width="3"/>
+      <line x1="272" y1="165" x2="528" y2="165" stroke="#0e2040" stroke-width="2.5"/>
+      <!-- Sail folds subtle -->
+      <path d="M310 45 Q400 38 490 45 L480 160 Q400 170 320 160Z" fill="rgba(0,0,0,0.2)"/>
+
+      <!-- FORE SAIL -->
+      <path d="M155 72 Q230 65 305 72 L295 180 Q230 190 165 180Z" fill="url(#sailGrad)" stroke="rgba(201,168,76,0.04)" stroke-width="0.5"/>
+      <line x1="160" y1="75" x2="300" y2="75" stroke="#0d1e38" stroke-width="2.5"/>
+
+      <!-- AFT SAIL -->
+      <path d="M488 95 Q570 88 648 95 L638 195 Q570 205 498 195Z" fill="url(#sailGrad)" stroke="rgba(201,168,76,0.04)" stroke-width="0.5"/>
+      <line x1="492" y1="98" x2="642" y2="98" stroke="#0d1e38" stroke-width="2.5"/>
+
+      <!-- BOWSPRIT -->
+      <line x1="105" y1="245" x2="30" y2="210" stroke="#0e2040" stroke-width="3.5"/>
+
+      <!-- RIGGING -->
+      <line x1="400" y1="22" x2="110" y2="262" stroke="rgba(201,168,76,0.09)" stroke-width="0.8"/>
+      <line x1="400" y1="22" x2="690" y2="262" stroke="rgba(201,168,76,0.09)" stroke-width="0.8"/>
+      <line x1="230" y1="67" x2="400" y2="25" stroke="rgba(201,168,76,0.07)" stroke-width="0.6"/>
+      <line x1="570" y1="92" x2="400" y2="28" stroke="rgba(201,168,76,0.07)" stroke-width="0.6"/>
+      <line x1="30" y1="210" x2="230" y2="67" stroke="rgba(201,168,76,0.06)" stroke-width="0.6"/>
+      <line x1="400" y1="22" x2="30" y2="210" stroke="rgba(201,168,76,0.06)" stroke-width="0.5"/>
+      <!-- Cross rigging -->
+      <line x1="270" y1="38" x2="165" y2="75" stroke="rgba(201,168,76,0.06)" stroke-width="0.5"/>
+      <line x1="530" y1="38" x2="492" y2="98" stroke="rgba(201,168,76,0.06)" stroke-width="0.5"/>
+
+      <!-- Lantern atop main mast -->
+      <circle cx="400" cy="18" r="5" fill="#c9a84c" opacity="0.9"/>
+      <circle cx="400" cy="18" r="18" fill="url(#lanternGlow)"/>
+      <circle cx="400" cy="18" r="35" fill="url(#lanternGlow)" opacity="0.3"/>
+
+      <!-- Phantom flag -->
+      <path d="M400 22 L430 32 L400 42 Z" fill="#0a1828"/>
+
+      <!-- WATER REFLECTION -->
+      <path d="M100 268 Q400 280 700 268" stroke="rgba(201,168,76,0.06)" stroke-width="40" fill="none" opacity="0.3" style="filter:blur(4px)"/>
+
+      <!-- Subtle name -->
+      <text x="400" y="298" text-anchor="middle" font-family="Cinzel,serif" font-size="8" fill="rgba(201,168,76,0.15)" letter-spacing="6">AETERNUM MARE</text>
+    </svg>
+    <div class="ship-water-reflection"></div>
+  </div>
+
+  <!-- SPECS -->
+  <div class="container-custom" style="margin-top:4rem;">
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:2rem;" id="ship-specs">
+      <div class="spec-item">
+        <p class="spec-label">Hull Design</p>
+        <p class="spec-value">Reinforced double-layer iron-ribbed oak — rated for uncharted shallows and open-sea sieges</p>
+      </div>
+      <div class="spec-item">
+        <p class="spec-label">Navigation System</p>
+        <p class="spec-value">Modified compass using twin magnetic cores — accounts for anomalies in uncharted southern waters</p>
+      </div>
+      <div class="spec-item">
+        <p class="spec-label">Visual Profile</p>
+        <p class="spec-value">Matte black stealth treatment — no lanterns above deck during night passage. She disappears in fog</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     INTERNAL CONFLICT
+═══════════════════════════════════════════ -->
+<div class="divider"></div>
+<section id="conflict">
+  <!-- Fog particles injected by JS -->
+  <div class="floating-compass">✦</div>
+
+  <div class="container-custom" style="position:relative;z-index:2;">
+    <div style="text-align:center; margin-bottom:4rem;" id="conflict-head">
+      <p class="section-label">Internal Cartography</p>
+      <h2 class="section-heading">The Unmapped Interior</h2>
+    </div>
+
+    <div class="conflict-text" id="conflict-body">
+      He carries <span class="conflict-highlight">guilt like ballast</span> — necessary weight to keep from rising too high.<br><br>
+      Every voyage is also an act of <span class="conflict-highlight">repetition</span>. He knows what happened to his father. He suspects he knows what will happen to him. He sails anyway — not because he is fearless, but because <span class="conflict-highlight">fear has become familiar</span>.<br><br>
+      The hidden route exists. He is certain of this. He is also certain that certainty has <span class="conflict-highlight">killed every man</span> who sailed toward it before him.<br><br>
+      He does not consider himself different. Only <span class="conflict-highlight">better prepared for the ending.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     REPUTATION
+═══════════════════════════════════════════ -->
+<div class="divider"></div>
+<section id="reputation">
+  <div class="container-custom">
+    <div style="text-align:center; margin-bottom:5rem;" id="rep-head">
+      <p class="section-label">The World's Verdict</p>
+      <h2 class="section-heading">Two Versions of One Man</h2>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr;" id="rep-grid">
+      <div class="rep-col rep-col-legend">
+        <p class="rep-label rep-label-legend">The Legend</p>
+        <h3 class="rep-title rep-title-legend">Ghost of the<br>Golden Meridian</h3>
+        <p class="rep-quote rep-quote-legend">
+          "He appeared from the fog at Porto Caxias with three impossible maps. The routes he charted saved the eastern fleet in the winter of '02. The Crown offered him admiralty. He declined, re-provisioned, and vanished before dawn."<br><br>
+          — Harbor Master Diogo Furtado
+        </p>
+      </div>
+      <div class="rep-col rep-col-madman">
+        <p class="rep-label rep-label-madman">The Madman</p>
+        <h3 class="rep-title rep-title-madman">A Fool Chasing<br>His Father's Ghost</h3>
+        <p class="rep-quote rep-quote-madman">
+          "He has lost three crews to storms no sane captain would have entered. He speaks of a route that does not exist. The Church has noted his name. I recommend no vessel or port extend him further credit or harbor."<br><br>
+          — Royal Navigator Council, Decree 1501
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FINALE
+═══════════════════════════════════════════ -->
+<div class="divider"></div>
+<section id="finale">
+  <div class="finale-bg"></div>
+
+  <!-- Stars in finale -->
+  <canvas id="finale-stars" style="position:absolute;inset:0;pointer-events:none;opacity:0.6;"></canvas>
+
+  <div class="finale-horizon"></div>
+
+  <div class="finale-content" id="finale-content" style="opacity:0;">
+    <div class="finale-rule"></div>
+    <p class="finale-quote">"Not all paths are meant<br>to be found."</p>
+    <p class="finale-sub">— Vasco da Gama, final log entry, undated</p>
+    <a href="#hero" class="cta-btn">Sail Into the Unknown</a>
+    <p style="font-family:'Cinzel',serif; font-size:0.55rem; letter-spacing:0.4em; color:var(--fog-dim); opacity:0.4; margin-top:4rem; text-transform:uppercase;">
+      Aeternum Mare · Est. 1494
+    </p>
+  </div>
+</section>
+
+<style>
+  @media (max-width: 768px) {
+    .skills-grid-responsive { grid-template-columns: 1fr !important; gap: 3rem !important; }
+    #rep-grid { grid-template-columns: 1fr !important; }
+    #ship-specs { grid-template-columns: 1fr !important; }
+    .ship-silhouette { width: 280px !important; }
+    #ship-main-svg { width: 100% !important; height: auto !important; }
+  }
+</style>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+/* ─── CURSOR ─── */
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  gsap.to(cursor, { x: mx, y: my, duration: 0.05 });
+});
+function animateRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  gsap.set(ring, { x: rx, y: ry });
+  requestAnimationFrame(animateRing);
+}
+animateRing();
+
+document.querySelectorAll('a, button, .trait-card, .cta-btn').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    gsap.to(cursor, { width: 14, height: 14, duration: 0.3 });
+    gsap.to(ring, { width: 50, height: 50, borderColor: 'rgba(201,168,76,0.7)', duration: 0.3 });
+  });
+  el.addEventListener('mouseleave', () => {
+    gsap.to(cursor, { width: 8, height: 8, duration: 0.3 });
+    gsap.to(ring, { width: 32, height: 32, borderColor: 'rgba(201,168,76,0.4)', duration: 0.3 });
+  });
+});
+
+/* ─── STARS CANVAS ─── */
+function initStars(canvasId, count) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  function resize() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const stars = Array.from({ length: count }, () => ({
+    x: Math.random(),
+    y: Math.random(),
+    r: Math.random() * 1.2 + 0.2,
+    a: Math.random(),
+    speed: Math.random() * 0.002 + 0.001,
+    phase: Math.random() * Math.PI * 2
+  }));
+
+  function drawStars(t) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stars.forEach(s => {
+      const alpha = s.a * (0.4 + 0.6 * Math.sin(t * s.speed * 1000 + s.phase));
+      ctx.beginPath();
+      ctx.arc(s.x * canvas.width, s.y * canvas.height, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(200, 210, 225, ${alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(t2 => drawStars(t2 / 1000));
+  }
+  drawStars(0);
+}
+
+initStars('stars-canvas', 120);
+initStars('finale-stars', 80);
+
+/* ─── WAVE ANIMATION ─── */
+const wave1 = document.getElementById('wave1');
+const wave2 = document.getElementById('wave2');
+const wave3 = document.getElementById('wave3');
+
+function animateWaves(t) {
+  const time = t * 0.0005;
+  const w1y = 250 + Math.sin(time) * 8;
+  const w2y = 220 + Math.sin(time * 1.3 + 1) * 10;
+  const w3y = 180 + Math.sin(time * 0.8 + 2) * 7;
+
+  wave1.setAttribute('d', `M0,${w1y} C180,${w1y-30} 400,${w1y+30} 720,${w1y} C1040,${w1y-20} 1260,${w1y+20} 1440,${w1y} L1440,320 L0,320 Z`);
+  wave2.setAttribute('d', `M0,${w2y} C200,${w2y-40} 440,${w2y+35} 720,${w2y} C1000,${w2y-25} 1240,${w2y+30} 1440,${w2y} L1440,320 L0,320 Z`);
+  wave3.setAttribute('d', `M0,${w3y} C240,${w3y-35} 480,${w3y+30} 720,${w3y} C960,${w3y-20} 1200,${w3y+25} 1440,${w3y} L1440,320 L0,320 Z`);
+  requestAnimationFrame(animateWaves);
+}
+requestAnimationFrame(animateWaves);
+
+/* ─── NAVBAR ─── */
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+});
+
+/* ─── HERO PARALLAX ─── */
+const heroLayers = document.querySelectorAll('.hero-layer');
+document.addEventListener('mousemove', e => {
+  const xFrac = (e.clientX / window.innerWidth - 0.5);
+  const yFrac = (e.clientY / window.innerHeight - 0.5);
+  heroLayers.forEach((l, i) => {
+    const depth = (i + 1) * 0.6;
+    gsap.to(l, { x: xFrac * depth * 10, y: yFrac * depth * 5, duration: 1.4, ease: 'power2.out' });
+  });
+});
+
+/* ─── HERO ENTRANCE ─── */
+const heroTl = gsap.timeline({ delay: 0.3 });
+heroTl
+  .set('#hero-content', { opacity: 1 })
+  .from('#h-eyebrow',  { y: 20, opacity: 0, duration: 1, ease: 'power3.out' })
+  .from('#ht-vasco',   { y: 60, opacity: 0, duration: 1.2, ease: 'power4.out' }, '-=0.5')
+  .from('#ht-gama',    { y: 60, opacity: 0, duration: 1.2, ease: 'power4.out' }, '-=0.8')
+  .from('#h-sub',      { y: 20, opacity: 0, duration: 1, ease: 'power3.out' }, '-=0.6')
+  .from('#h-rule',     { scaleX: 0, duration: 0.8, ease: 'power2.out' }, '-=0.4')
+  .from('#h-quote',    { y: 20, opacity: 0, duration: 1, ease: 'power3.out' }, '-=0.4')
+  .from('#h-cta',      { y: 20, opacity: 0, duration: 0.8, ease: 'power3.out' }, '-=0.4')
+  .from('#scroll-ind', { opacity: 0, duration: 1 }, '-=0.2');
+
+/* ─── HERO SCROLL PARALLAX ─── */
+gsap.to('#hero-content', {
+  yPercent: 25,
+  opacity: 0.3,
+  ease: 'none',
+  scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true }
+});
+
+/* ─── BACKSTORY HEAD ─── */
+gsap.from('#backstory-head', {
+  y: 40, opacity: 0, duration: 1, ease: 'power3.out',
+  scrollTrigger: { trigger: '#backstory-head', start: 'top 80%' }
+});
+
+/* ─── TIMELINE ITEMS ─── */
+document.querySelectorAll('.timeline-item').forEach((item, i) => {
+  const dir = item.dataset.dir;
+  gsap.fromTo(item,
+    { x: dir === 'left' ? -50 : 50, opacity: 0 },
+    {
+      x: 0, opacity: 1, duration: 1, ease: 'power3.out',
+      scrollTrigger: { trigger: item, start: 'top 80%' }
+    }
+  );
+});
+
+/* ─── TRAITS ─── */
+gsap.from('#traits-head', {
+  y: 40, opacity: 0, duration: 1,
+  scrollTrigger: { trigger: '#traits-head', start: 'top 80%' }
+});
+
+document.querySelectorAll('.trait-card').forEach((card, i) => {
+  gsap.fromTo(card,
+    { y: 30, opacity: 0 },
+    {
+      y: 0, opacity: 1, duration: 0.9, delay: i * 0.12, ease: 'power3.out',
+      scrollTrigger: { trigger: '#traits', start: 'top 70%' }
+    }
+  );
+});
+
+/* ─── SKILLS ─── */
+gsap.from('#skills-head', {
+  x: -40, opacity: 0, duration: 1,
+  scrollTrigger: { trigger: '#skills', start: 'top 75%' }
+});
+
+document.querySelectorAll('.skill-item').forEach((item, i) => {
+  gsap.fromTo(item,
+    { x: 40, opacity: 0 },
+    {
+      x: 0, opacity: 1, duration: 0.8, delay: i * 0.1, ease: 'power3.out',
+      scrollTrigger: { trigger: '#skills', start: 'top 70%' }
+    }
+  );
+  const fill = item.querySelector('.skill-fill');
+  const target = parseInt(fill.dataset.target);
+  ScrollTrigger.create({
+    trigger: '#skills',
+    start: 'top 65%',
+    once: true,
+    onEnter: () => {
+      gsap.to(fill, { width: target + '%', duration: 1.6 + i * 0.15, ease: 'power2.out', delay: i * 0.12 });
+    }
+  });
+});
+
+/* ─── SHIP ─── */
+gsap.from('#ship-head', {
+  y: 40, opacity: 0, duration: 1,
+  scrollTrigger: { trigger: '#ship-head', start: 'top 80%' }
+});
+
+gsap.to('#ship-main-svg', {
+  opacity: 1, duration: 1.5, ease: 'power2.out',
+  scrollTrigger: { trigger: '#ship', start: 'top 70%' }
+});
+
+gsap.from('#ship-main-svg', {
+  y: 30,
+  scrollTrigger: {
+    trigger: '#ship',
+    start: 'top bottom',
+    end: 'bottom top',
+    scrub: 1
+  }
+});
+
+document.querySelectorAll('.spec-item').forEach((el, i) => {
+  gsap.fromTo(el,
+    { y: 25, opacity: 0 },
+    {
+      y: 0, opacity: 1, duration: 0.8, delay: i * 0.15,
+      scrollTrigger: { trigger: '#ship-specs', start: 'top 80%' }
+    }
+  );
+});
+
+/* ─── CONFLICT FOG PARTICLES ─── */
+const conflictSection = document.getElementById('conflict');
+for (let i = 0; i < 14; i++) {
+  const p = document.createElement('div');
+  const size = 150 + Math.random() * 300;
+  p.className = 'fog-particle';
+  p.style.cssText = `
+    width: ${size}px; height: ${size}px;
+    left: ${Math.random() * 100}%;
+    top: ${Math.random() * 100}%;
+    --fx: ${(Math.random() - 0.5) * 200}px;
+    --fy: ${(Math.random() - 0.5) * 100}px;
+    animation-duration: ${12 + Math.random() * 20}s;
+    animation-delay: ${Math.random() * -15}s;
+  `;
+  conflictSection.appendChild(p);
+}
+
+gsap.from('#conflict-head', {
+  y: 40, opacity: 0, duration: 1,
+  scrollTrigger: { trigger: '#conflict-head', start: 'top 80%' }
+});
+
+gsap.from('#conflict-body', {
+  y: 50, opacity: 0, duration: 1.5, ease: 'power3.out',
+  scrollTrigger: { trigger: '#conflict-body', start: 'top 80%' }
+});
+
+/* ─── REPUTATION ─── */
+gsap.from('#rep-head', {
+  y: 40, opacity: 0, duration: 1,
+  scrollTrigger: { trigger: '#rep-head', start: 'top 80%' }
+});
+
+document.querySelectorAll('.rep-col').forEach((col, i) => {
+  gsap.fromTo(col,
+    { x: i === 0 ? -40 : 40, opacity: 0 },
+    {
+      x: 0, opacity: 1, duration: 1.1, ease: 'power3.out', delay: i * 0.15,
+      scrollTrigger: { trigger: '#rep-grid', start: 'top 75%' }
+    }
+  );
+});
+
+/* ─── FINALE ─── */
+gsap.fromTo('#finale-content',
+  { y: 50, opacity: 0 },
+  {
+    y: 0, opacity: 1, duration: 1.5, ease: 'power3.out',
+    scrollTrigger: { trigger: '#finale', start: 'top 70%' }
+  }
+);
+
+/* ─── SMOOTH SCROLL FOR CTA ─── */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+</body>
+</html>
