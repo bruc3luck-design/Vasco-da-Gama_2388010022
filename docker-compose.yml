@@ -12,7 +12,7 @@ services:
     restart: always
 
   container-statis:
-    image: gamine1/himafor_2388010022:latest
+    image: gamine1/vascodagama:latest
     ports:
       - "80:80"
     restart: always
